@@ -102,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //El boton buscar es la imagen con el simbolo de bluetooth, que llama al metodo list al clicarlo
         botonbuscar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -109,6 +110,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+
 
     public void list() {
         emparejardispositivos = adaptadorBluetooth.getBondedDevices();
