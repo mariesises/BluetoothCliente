@@ -9,10 +9,10 @@
 
 
     <CheckBox
-        android:id="@+id/botonenable"
+        android:id="@+id/botonhabilitado"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Enable" />
+        android:text="Activo" />
 
     <CheckBox
         android:id="@+id/botonvisible"

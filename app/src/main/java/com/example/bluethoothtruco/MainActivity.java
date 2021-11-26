@@ -20,12 +20,17 @@ import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
-    CheckBox botonenable, botonvisible;
+    //Declaro los componentes que vamos a usar
+    CheckBox botonhabilitado, botonvisible;
     ImageView botonbuscar;
     TextView nombre_bt;
     ListView listaView;
 
+    //Declaro un adaptador de bluetooth para comprobar si el servicio Bluetooth esta disponible en el dispositivo.
+    //Dentro del archivo Manifest hay que declarar dos permisos adecuados para poder usar el Bluetooth.
     private BluetoothAdapter adaptadorBluetooth;
+
+    //Este objeto de tipo BluetoothDevice permite crear una conexion con el dispositivo respectivo o consultar informacion sobre él,nombre, dirección...
     private Set<BluetoothDevice> emparejardispositivos;
 
 
@@ -34,27 +39,39 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        botonenable = findViewById(R.id.botonenable);
+        //Asigno las variables a sus respectivos componentes
+        botonhabilitado = findViewById(R.id.botonhabilitado);
         botonvisible = findViewById(R.id.botonvisible);
         botonbuscar = findViewById(R.id.botonbuscar);
 
         nombre_bt = findViewById(R.id.nombrebluetooth);
+        //mediante este metodo mostramos el nombre del dispositivo Bluetooth
         nombre_bt.setText(getLocalBluetoothName());
 
+        //Lista donde saldrán los dispositivos
         listaView = findViewById(R.id.lista_view);
 
+        //Aqui comenzamos a usar el adaptador para comprobar si se puede usar el Bluetooth
         adaptadorBluetooth = BluetoothAdapter.getDefaultAdapter();
 
+        //Si no es soportado,no se realiza nada
         if (adaptadorBluetooth == null) {
             Toast.makeText(this, "Bluetooth no soportado", Toast.LENGTH_SHORT).show();
             finish();
         }
 
+        //Si esta habilitado el checkbox se marca
         if (adaptadorBluetooth.isEnabled()) {
-            botonenable.setChecked(true);
+            botonhabilitado.setChecked(true);
         }
 
-        botonenable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        /**
+         * Implementar el metodo OnCheckedListener para mostrar que hacer en cada caso
+         * Cuando no está seleccionado el checkbox quiere decir que el bluetooth está apagado(llama al metodo) y muestra un mensaje
+         * Si no realiza un intent en el que busca otra vez la accion para habilitar el bluetooth de nuevo y muestra otro mensaje
+         * Para esto hay que añadir el permiso "android.permission.BLUETOOTH_CONNECT" al archivo Manifest
+         */
+        botonhabilitado.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
             @Override
             public void onCheckedChanged(CompoundButton vistaBoton, boolean seleccionado) {
@@ -69,6 +86,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        /**
+         * En caso del checkbox visible, indica si el dispositivo bluetooth esta visible para otrs dispositivos
+         * Para que esta accion funcione hay que añadir el permiso "android.permission.BLUETOOTH_ADVERTISE" al archivo Manifest
+         */
         botonvisible.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
             @Override
