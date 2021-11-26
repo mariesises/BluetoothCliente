@@ -22,18 +22,30 @@
         android:layout_alignParentRight="true"/>
 
     <TextView
-        android:layout_width="wrap_content"
+        android:id="@+id/nombrebluetooth"
+        android:layout_width="63dp"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:text="Bt Name"
-        android:textStyle="bold"
-        android:textSize="20sp"/>
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
     <ImageView
+        android:id="@+id/botonbuscar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_action_search"
+        android:layout_below="@+id/nombrebluetooth"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
         android:background="#1a6da4"
-        />
+        android:padding="5dp"
+        android:src="@drawable/ic_action_search" />
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/lista_view"
+            android:layout_below="@+id/botonbuscar"/>
 
 
 </RelativeLayout>
