@@ -209,7 +209,6 @@ public class MainActivity extends AppCompatActivity {
         return nombre;
     }
 
-
     private interface MessageConstants {
         public static final int MESSAGE_WRITE = 1;
         public static final int MESSAGE_TOAST = 2;
