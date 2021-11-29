@@ -1,11 +1,16 @@
 package com.example.bluethoothtruco;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
-import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
@@ -26,9 +31,6 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
@@ -36,12 +38,15 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity {
 
     //Declaro los componentes que vamos a usar
-    Button botonEnviar,botonBuscar;
+    Button botonEnviar, botonBuscar;
     CheckBox botonhabilitado, botonvisible;
     ImageView botonbuscar;
     TextView nombre_bt;
     ListView listaView;
     private BluetoothSocket mmSocket;
+
+    // Nombre de la clase para el log
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     private String nombreDispositivo;
     private String direccionDispositivo;
@@ -90,6 +95,8 @@ public class MainActivity extends AppCompatActivity {
         //Si esta habilitado el checkbox se marca
         if (adaptadorBluetooth.isEnabled()) {
             botonhabilitado.setChecked(true);
+        } else {
+            botonhabilitado.setChecked(false);
         }
 
         /**
@@ -130,10 +137,29 @@ public class MainActivity extends AppCompatActivity {
                 if (seleccionado) {
                     Intent volversevisible = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
                     //startActivityForResult(volversevisible, 0);
-                    startActivity(volversevisible);
+                    ActivityResult.launch(volversevisible);
                     Toast.makeText(MainActivity.this, "Visible por 2 minutos", Toast.LENGTH_SHORT).show();
                 }
             }
+
+            ActivityResultLauncher<Intent> ActivityResult = registerForActivityResult(
+
+                    new ActivityResultContracts.StartActivityForResult(),
+                    new ActivityResultCallback<ActivityResult>() {
+                        //Se implementa el método onActivityResult
+                        @Override
+                        @SuppressLint("LongLogTag")
+                        public void onActivityResult(ActivityResult result) {
+                            //Se comprueba que el código del resultado sea correcto
+                            //Es decir, que reciba lo que debe recibir
+                            if(result.getResultCode() == Activity.RESULT_OK){
+                                Log.d(TAG, "El usuario ha aceptado la peticion");
+                            }else if(result.getResultCode() == Activity.RESULT_CANCELED){
+                                Log.d(TAG, "Error o " + "El usuario ha rechazado");
+                            }
+                        }
+                    });
+
         });
 
         //El boton buscar es la imagen con el simbolo de bluetooth, que llama al metodo list al clicarlo
@@ -167,24 +193,22 @@ public class MainActivity extends AppCompatActivity {
         listaView.setAdapter(adaptador);
 
 
-
-
         //Cuando pulsas cualquier elemento de la lista de dispositivos posibles, obtiene su nombre
         //y su direccion hardware(UUID)
-        listaView.setOnItemClickListener(new  AdapterView.OnItemClickListener() {
+        listaView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
                 nombreDispositivo = (String) lista.get(position);
                 for (BluetoothDevice dispositivoBluetooth : emparejardispositivos) {
-                    if(nombreDispositivo.equals(dispositivoBluetooth.getName())){
-                        direccionDispositivo =  dispositivoBluetooth.getAddress();
+                    if (nombreDispositivo.equals(dispositivoBluetooth.getName())) {
+                        direccionDispositivo = dispositivoBluetooth.getAddress();
                     }
                 }
 
 
                 //conexion al dispositivo que hemos indicado
-                BluetoothManager bluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
+                BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
                 BluetoothDevice mBluetoothDevice = bluetoothManager.getAdapter().getRemoteDevice(direccionDispositivo);
 
                 try {
@@ -210,12 +234,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //Metodo para recoger el Nombre Bluetooth Local y mostrarlo por pantalla
-    public String getLocalBluetoothName(){
-        if (adaptadorBluetooth == null){
+    public String getLocalBluetoothName() {
+        if (adaptadorBluetooth == null) {
             adaptadorBluetooth = BluetoothAdapter.getDefaultAdapter();
         }
         String nombre = adaptadorBluetooth.getName();
-        if(nombre == null){
+        if (nombre == null) {
             nombre = adaptadorBluetooth.getAddress();
         }
         return nombre;
@@ -226,9 +250,9 @@ public class MainActivity extends AppCompatActivity {
         public static final int MESSAGE_TOAST = 2;
     }
 
-    public void enviarImagen(){
+    public void enviarImagen() {
 
-        String mensaje="Hola Mundo!";
+        String mensaje = "Hola Mundo!";
         byte[] byteArrray = mensaje.getBytes();
         Handler handler = null;
         OutputStream mmOutStream = null;
@@ -236,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             mmOutStream.write(byteArrray);
         } catch (IOException e) {
-            
+
             Message writeErrorMsg =
                     handler.obtainMessage(MessageConstants.MESSAGE_TOAST);
             Bundle bundle = new Bundle();
@@ -247,7 +271,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
 
 
 }
