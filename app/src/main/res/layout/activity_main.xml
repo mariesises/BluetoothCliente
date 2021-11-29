@@ -18,12 +18,26 @@
         android:id="@+id/botonvisible"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Visible"
-        android:layout_alignParentRight="true"/>
+        android:layout_alignParentRight="true"
+        android:text="Visible" />
+
+    <Button
+        android:id="@+id/botonBusqueda"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/botonhabilitado"
+        android:text="Buscar" />
+
+    <Button
+        android:id="@+id/botonEnviar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/botonvisible"
+        android:text="Enviar" />
 
     <TextView
         android:id="@+id/nombrebluetooth"
-        android:layout_width="63dp"
+        android:layout_width="91dp"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:text="Bt Name"
@@ -45,17 +59,9 @@
         android:id="@+id/lista_view"
         android:layout_width="wrap_content"
         android:layout_height="273dp"
-        android:layout_below="@+id/botonbuscar" />
+        android:layout_below="@+id/botonbuscar"
+        android:layout_marginTop="20dp" />
 
-    <Button
-        android:id="@+id/botonEnviar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/lista_view"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="147dp"
-        android:layout_marginTop="43dp"
-        android:text="Enviar" />
 
 
 </RelativeLayout>

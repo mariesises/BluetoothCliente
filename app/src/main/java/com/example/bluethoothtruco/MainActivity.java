@@ -36,7 +36,7 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity {
 
     //Declaro los componentes que vamos a usar
-    Button botonEnviar;
+    Button botonEnviar,botonBuscar;
     CheckBox botonhabilitado, botonvisible;
     ImageView botonbuscar;
     TextView nombre_bt;
@@ -69,6 +69,7 @@ public class MainActivity extends AppCompatActivity {
         botonvisible = findViewById(R.id.botonvisible);
         botonbuscar = findViewById(R.id.botonbuscar);
         botonEnviar = findViewById(R.id.botonEnviar);
+        botonBuscar = findViewById(R.id.botonBusqueda);
 
         nombre_bt = findViewById(R.id.nombrebluetooth);
         //mediante este metodo mostramos el nombre del dispositivo Bluetooth
@@ -114,6 +115,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         /**
+         * El botonBusqueda se encarga de buscar los dispositivos disponibles a los que se puede emparejar
+         * Saldrán los dispositivos en una lista nueva
+         */
+
+        /**
          * En caso del checkbox visible, indica si el dispositivo bluetooth esta visible para otrs dispositivos
          * Para que esta accion funcione hay que añadir el permiso "android.permission.BLUETOOTH_ADVERTISE" al archivo Manifest
          */
@@ -146,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    //Metodo para mostrar los dispositivos emparejados en la lista
     public void list() {
         emparejardispositivos = adaptadorBluetooth.getBondedDevices();
 
@@ -155,7 +162,7 @@ public class MainActivity extends AppCompatActivity {
             lista.add(dispositivoBluetooth.getName());
         }
 
-        Toast.makeText(this, "Mostrando dispositivos", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Mostrando dispositivos emparejados", Toast.LENGTH_SHORT).show();
         ArrayAdapter adaptador = new ArrayAdapter(this, android.R.layout.simple_list_item_1, lista);
         listaView.setAdapter(adaptador);
 
@@ -174,6 +181,7 @@ public class MainActivity extends AppCompatActivity {
                         direccionDispositivo =  dispositivoBluetooth.getAddress();
                     }
                 }
+
 
                 //conexion al dispositivo que hemos indicado
                 BluetoothManager bluetoothManager = (BluetoothManager)getSystemService(Context.BLUETOOTH_SERVICE);
