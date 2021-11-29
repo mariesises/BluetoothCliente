@@ -44,7 +44,7 @@
     <ListView
         android:id="@+id/lista_view"
         android:layout_width="wrap_content"
-        android:layout_height="444dp"
+        android:layout_height="273dp"
         android:layout_below="@+id/botonbuscar" />
 
     <Button

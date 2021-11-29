@@ -46,8 +46,9 @@ public class MainActivity extends AppCompatActivity {
     private String nombreDispositivo;
     private String direccionDispositivo;
 
-    java.util.UUID myOwnUUID = UUID.randomUUID();
-    String MY_UUID = myOwnUUID.toString();
+    //java.util.UUID myOwnUUID = UUID.randomUUID();
+    //String MY_UUID = myOwnUUID.toString();
+    private static final UUID MY_UUID = UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
 
 
     //Declaro un adaptador de bluetooth para comprobar si el servicio Bluetooth esta disponible en el dispositivo.
@@ -105,7 +106,8 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Apagado", Toast.LENGTH_SHORT).show();
                 } else {
                     Intent intentencendido = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    startActivityForResult(intentencendido, 0);
+                    //startActivityForResult(intentencendido, 0);
+                    startActivity(intentencendido);
                     Toast.makeText(MainActivity.this, "Encendido", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -121,7 +123,8 @@ public class MainActivity extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton vistaBoton, boolean seleccionado) {
                 if (seleccionado) {
                     Intent volversevisible = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-                    startActivityForResult(volversevisible, 0);
+                    //startActivityForResult(volversevisible, 0);
+                    startActivity(volversevisible);
                     Toast.makeText(MainActivity.this, "Visible por 2 minutos", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -177,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
                 BluetoothDevice mBluetoothDevice = bluetoothManager.getAdapter().getRemoteDevice(direccionDispositivo);
 
                 try {
-                    mmSocket = mBluetoothDevice.createRfcommSocketToServiceRecord(UUID.fromString(MY_UUID));
+                    mmSocket = mBluetoothDevice.createRfcommSocketToServiceRecord((MY_UUID));
                 } catch (IOException e) {
                     System.out.println("falla");
                 }
@@ -198,6 +201,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    //Metodo para recoger el Nombre Bluetooth Local y mostrarlo por pantalla
     public String getLocalBluetoothName(){
         if (adaptadorBluetooth == null){
             adaptadorBluetooth = BluetoothAdapter.getDefaultAdapter();
