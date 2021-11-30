@@ -38,11 +38,11 @@ import java.util.UUID;
 public class MainActivity extends AppCompatActivity {
 
     //Declaro los componentes que vamos a usar
-    Button botonEnviar, botonBuscar;
+    Button botonEnviar, botonBuscarDispositivos;
     CheckBox botonhabilitado, botonvisible;
     ImageView botonbuscar;
     TextView nombre_bt;
-    ListView listaView;
+    ListView listaEmparejados,listaDDispobibles;
     private BluetoothSocket mmSocket;
 
     // Nombre de la clase para el log
@@ -74,14 +74,16 @@ public class MainActivity extends AppCompatActivity {
         botonvisible = findViewById(R.id.botonvisible);
         botonbuscar = findViewById(R.id.botonbuscar);
         botonEnviar = findViewById(R.id.botonEnviar);
-        botonBuscar = findViewById(R.id.botonBusqueda);
+        botonBuscarDispositivos = findViewById(R.id.botonBusqueda);
 
         nombre_bt = findViewById(R.id.nombrebluetooth);
         //mediante este metodo mostramos el nombre del dispositivo Bluetooth
         nombre_bt.setText(getLocalBluetoothName());
 
-        //Lista donde saldrán los dispositivos
-        listaView = findViewById(R.id.lista_view);
+        //Lista donde saldrán los dispositivos emparejados
+        listaEmparejados = findViewById(R.id.lista_emparejados);
+        //Lista donde saldrán los dispositivos disponibles cercanos
+        listaDDispobibles = findViewById(R.id.lista_disponibles);
 
         //Aqui comenzamos a usar el adaptador para comprobar si se puede usar el Bluetooth
         adaptadorBluetooth = BluetoothAdapter.getDefaultAdapter();
@@ -112,33 +114,17 @@ public class MainActivity extends AppCompatActivity {
                 if (!seleccionado) {
                     adaptadorBluetooth.disable();
                     Toast.makeText(MainActivity.this, "Apagado", Toast.LENGTH_SHORT).show();
+                    botonbuscar.setEnabled(false);
+                    botonBuscarDispositivos.setEnabled(false);
+                    botonEnviar.setEnabled(false);
                 } else {
                     Intent intentencendido = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                     //startActivityForResult(intentencendido, 0);
-                    startActivity(intentencendido);
+                    ActivityResult.launch(intentencendido);
                     Toast.makeText(MainActivity.this, "Encendido", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        /**
-         * El botonBusqueda se encarga de buscar los dispositivos disponibles a los que se puede emparejar
-         * Saldrán los dispositivos en una lista nueva
-         */
-
-        /**
-         * En caso del checkbox visible, indica si el dispositivo bluetooth esta visible para otrs dispositivos
-         * Para que esta accion funcione hay que añadir el permiso "android.permission.BLUETOOTH_ADVERTISE" al archivo Manifest
-         */
-        botonvisible.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-
-            @Override
-            public void onCheckedChanged(CompoundButton vistaBoton, boolean seleccionado) {
-                if (seleccionado) {
-                    Intent volversevisible = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-                    //startActivityForResult(volversevisible, 0);
-                    ActivityResult.launch(volversevisible);
-                    Toast.makeText(MainActivity.this, "Visible por 2 minutos", Toast.LENGTH_SHORT).show();
+                    botonbuscar.setEnabled(true);
+                    botonBuscarDispositivos.setEnabled(true);
+                    botonEnviar.setEnabled(true);
                 }
             }
 
@@ -151,15 +137,48 @@ public class MainActivity extends AppCompatActivity {
                         @SuppressLint("LongLogTag")
                         public void onActivityResult(ActivityResult result) {
                             //Se comprueba que el código del resultado sea correcto
-                            //Es decir, que reciba lo que debe recibir
-                            if(result.getResultCode() == Activity.RESULT_OK){
+                            if (result.getResultCode() == Activity.RESULT_OK) {
                                 Log.d(TAG, "El usuario ha aceptado la peticion");
-                            }else if(result.getResultCode() == Activity.RESULT_CANCELED){
+                            } else if (result.getResultCode() == Activity.RESULT_CANCELED) {
                                 Log.d(TAG, "Error o " + "El usuario ha rechazado");
                             }
                         }
                     });
+        });
 
+        /**
+         * El botonBusqueda se encarga de buscar los dispositivos disponibles a los que se puede emparejar
+         * Saldrán los dispositivos en una lista nueva
+         */
+
+        botonBuscarDispositivos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (adaptadorBluetooth.isDiscovering()) {
+                    Log.d(TAG, "Ya estça buscando dispositivos");
+                } else if (adaptadorBluetooth.startDiscovery()) {
+                    Log.d(TAG, "Buscando dispositivos");
+                } else {
+                    Log.d(TAG, "Error al buscar dispositivos");
+                }
+            }
+        });
+
+        /**
+         * En caso del checkbox visible, indica si el dispositivo bluetooth esta visible para otrs dispositivos
+         * Para que esta accion funcione hay que añadir el permiso "android.permission.BLUETOOTH_ADVERTISE" al archivo Manifest
+         */
+        botonvisible.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton vistaBoton, boolean seleccionado) {
+                if (seleccionado) {
+                    Intent volversevisible = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+                    //startActivityForResult(volversevisible, 0);
+                    startActivity(volversevisible);
+                    Toast.makeText(MainActivity.this, "Visible por 2 minutos", Toast.LENGTH_SHORT).show();
+                }
+            }
         });
 
         //El boton buscar es la imagen con el simbolo de bluetooth, que llama al metodo list al clicarlo
@@ -190,12 +209,13 @@ public class MainActivity extends AppCompatActivity {
 
         Toast.makeText(this, "Mostrando dispositivos emparejados", Toast.LENGTH_SHORT).show();
         ArrayAdapter adaptador = new ArrayAdapter(this, android.R.layout.simple_list_item_1, lista);
-        listaView.setAdapter(adaptador);
+        listaEmparejados.setAdapter(adaptador);
+        listaDDispobibles.setAdapter(adaptador);
 
 
         //Cuando pulsas cualquier elemento de la lista de dispositivos posibles, obtiene su nombre
         //y su direccion hardware(UUID)
-        listaView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listaEmparejados.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 

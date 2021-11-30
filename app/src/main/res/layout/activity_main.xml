@@ -57,10 +57,17 @@
         android:src="@drawable/ic_action_search" />
 
     <ListView
-        android:id="@+id/lista_view"
+        android:id="@+id/lista_emparejados"
         android:layout_width="wrap_content"
-        android:layout_height="273dp"
+        android:layout_height="239dp"
         android:layout_below="@+id/botonbuscar"
+        android:layout_marginTop="20dp" />
+
+    <ListView
+        android:id="@+id/lista_disponibles"
+        android:layout_width="390dp"
+        android:layout_height="130dp"
+        android:layout_below="@+id/lista_emparejados"
         android:layout_marginTop="20dp" />
 
 
