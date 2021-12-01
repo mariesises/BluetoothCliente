@@ -1,4 +1,4 @@
-package com.example.bluethoothtruco;
+package com.example.bluethoothcliente;
 
 import android.content.Context;
 
