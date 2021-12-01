@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     TextView nombre_bt;
     ListView listaEmparejados,listaDDispobibles;
     private BluetoothSocket mmSocket;
+    private byte[] mmBuffer;
 
     // Nombre de la clase para el log
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -75,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         botonbuscar = findViewById(R.id.botonbuscar);
         botonEnviar = findViewById(R.id.botonEnviar);
         botonBuscarDispositivos = findViewById(R.id.botonBusqueda);
+
 
         nombre_bt = findViewById(R.id.nombrebluetooth);
         //mediante este metodo mostramos el nombre del dispositivo Bluetooth
@@ -165,7 +167,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         /**
-         * En caso del checkbox visible, indica si el dispositivo bluetooth esta visible para otrs dispositivos
+         * En caso del checkbox visible, indica si el dispositivo bluetooth esta visible para otros dispositivos
          * Para que esta accion funcione hay que añadir el permiso "android.permission.BLUETOOTH_ADVERTISE" al archivo Manifest
          */
         botonvisible.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -181,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
         //El boton buscar es la imagen con el simbolo de bluetooth, que llama al metodo list al clicarlo
         botonbuscar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -191,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
         botonEnviar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                enviarImagen();
+                enviarTexto();
             }
         });
     }
@@ -234,16 +237,17 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     mmSocket = mBluetoothDevice.createRfcommSocketToServiceRecord((MY_UUID));
                 } catch (IOException e) {
-                    System.out.println("falla");
+                    System.out.println("falla creacion de socket");
                 }
 
                 try {
                     mmSocket.connect();
+
                 } catch (IOException connectException) {
                     try {
                         mmSocket.close();
                     } catch (IOException closeException) {
-                        System.out.println("falla");
+                        System.out.println("falla conexion");
                     }
                 }
 
@@ -253,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    //Metodo para recoger el Nombre Bluetooth Local y mostrarlo por pantalla
+    //Metodo para recoger el Nombre Bluetooth Local y lo muestra por pantalla
     public String getLocalBluetoothName() {
         if (adaptadorBluetooth == null) {
             adaptadorBluetooth = BluetoothAdapter.getDefaultAdapter();
@@ -265,12 +269,13 @@ public class MainActivity extends AppCompatActivity {
         return nombre;
     }
 
+    //constantes para saber qué acción hacemos en cada momento de enviar mensajes
     private interface MessageConstants {
         public static final int MESSAGE_WRITE = 1;
         public static final int MESSAGE_TOAST = 2;
     }
 
-    public void enviarImagen() {
+    public void enviarTexto() {
 
         String mensaje = "Hola Mundo!";
         byte[] byteArrray = mensaje.getBytes();
@@ -278,9 +283,17 @@ public class MainActivity extends AppCompatActivity {
         OutputStream mmOutStream = null;
 
         try {
+            //método que envia el mensaje que queremos
             mmOutStream.write(byteArrray);
+
+            //Si el mensaje se envia de forma correcta, se manda a la activity principal
+            Message writtenMsg = handler.obtainMessage(
+                    MessageConstants.MESSAGE_WRITE, -1, -1, mmBuffer);
+            writtenMsg.sendToTarget();
+
         } catch (IOException e) {
 
+            //Si el mensaje no se envia de forma correcta se notifica con un toast
             Message writeErrorMsg =
                     handler.obtainMessage(MessageConstants.MESSAGE_TOAST);
             Bundle bundle = new Bundle();
