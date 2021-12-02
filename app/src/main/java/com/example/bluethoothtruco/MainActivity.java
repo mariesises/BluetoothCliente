@@ -92,8 +92,10 @@ public class MainActivity extends AppCompatActivity {
                     arraydisponibles.add(dispositivo.getName());
                     adaptadordisponibles.notifyDataSetChanged();
                     Log.d(TAG, "Dispositivo encontrado: " + dispositivo.getName());
+                    //listaDDisponibles.setAdapter(adaptadordisponibles);
                     break;
             }
+
         }
     };
 
@@ -216,6 +218,7 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     Log.d(TAG, "Error al detener la busqueda de dispositivos");
                 }
+                list();
             }
 
 
@@ -275,6 +278,8 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "Mostrando dispositivos emparejados", Toast.LENGTH_SHORT).show();
         ArrayAdapter adaptador = new ArrayAdapter(this, android.R.layout.simple_list_item_1, lista);
         listaEmparejados.setAdapter(adaptador);
+        //listaDDisponibles.setAdapter(adaptadordisponibles);
+        listaDDisponibles.setAdapter(adaptador);
 
 
         //Cuando pulsas cualquier elemento de la lista de dispositivos posibles, obtiene su nombre
