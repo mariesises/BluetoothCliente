@@ -26,6 +26,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/botonhabilitado"
+        android:enabled="false"
         android:text="Buscar" />
 
     <Button
@@ -34,6 +35,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/botonvisible"
         android:layout_alignParentRight="true"
+        android:enabled="false"
         android:text="Enviar" />
 
     <TextView
