@@ -5,6 +5,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -12,8 +13,10 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -42,15 +45,20 @@ public class MainActivity extends AppCompatActivity {
     CheckBox botonhabilitado, botonvisible;
     ImageView botonbuscar;
     TextView nombre_bt;
-    ListView listaEmparejados,listaDDispobibles;
+    ListView listaEmparejados,listaDDisponibles;
     private BluetoothSocket mmSocket;
     private byte[] mmBuffer;
 
     // Nombre de la clase para el log
     private static final String TAG = MainActivity.class.getSimpleName();
 
+    //variables para guardar el nombre de los dispositivos emparejados y su direccion
     private String nombreDispositivo;
     private String direccionDispositivo;
+
+    //Una lista de arrays para guardar el nombre de los dispositivos que se están buscando
+    ArrayList<String> arraydisponibles = new ArrayList<String>();
+    ArrayAdapter<String> adaptadordisponibles;
 
     //java.util.UUID myOwnUUID = UUID.randomUUID();
     //String MY_UUID = myOwnUUID.toString();
@@ -61,8 +69,35 @@ public class MainActivity extends AppCompatActivity {
     //Dentro del archivo Manifest hay que declarar dos permisos adecuados para poder usar el Bluetooth.
     private BluetoothAdapter adaptadorBluetooth;
 
-    //Este objeto de tipo BluetoothDevice permite crear una conexion con el dispositivo respectivo o consultar informacion sobre él,nombre, dirección...
+    //Este objeto de tipo BluetoothDevice permite crear una conexion con el dispositivo respectivo o consultar informacion sobre él,nombre, dirección... para los emparejados
     private Set<BluetoothDevice> emparejardispositivos;
+
+
+    //Para empezar a detectar cada dispositivo nuevo usamos un BroadcastReceiver, basicamente un registrado dinámico
+    private final BroadcastReceiver miBroadcastReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String accion = intent.getAction();
+
+            switch (accion) {
+                case BluetoothAdapter.ACTION_DISCOVERY_STARTED:
+                    Log.d(TAG, "Búsqueda de dispositivos iniciada");
+                    break;
+                case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
+                    Log.d(TAG, "Búsqueda de dispositivos finalizada");
+                    break;
+                case BluetoothDevice.ACTION_FOUND:
+                    BluetoothDevice dispositivo = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    arraydisponibles.add(dispositivo.getName());
+                    adaptadordisponibles.notifyDataSetChanged();
+                    Log.d(TAG, "Dispositivo encontrado: " + dispositivo.getName());
+                    break;
+            }
+        }
+    };
+
+
 
 
     @Override
@@ -83,9 +118,11 @@ public class MainActivity extends AppCompatActivity {
         nombre_bt.setText(getLocalBluetoothName());
 
         //Lista donde saldrán los dispositivos emparejados
-        listaEmparejados = findViewById(R.id.lista_emparejados);
+        listaEmparejados = findViewById(R.id.listaemparejados);
         //Lista donde saldrán los dispositivos disponibles cercanos
-        listaDDispobibles = findViewById(R.id.lista_disponibles);
+        listaDDisponibles = findViewById(R.id.listadisponibles);
+        adaptadordisponibles = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,arraydisponibles);
+        listaDDisponibles.setAdapter(adaptadordisponibles);
 
         //Aqui comenzamos a usar el adaptador para comprobar si se puede usar el Bluetooth
         adaptadorBluetooth = BluetoothAdapter.getDefaultAdapter();
@@ -102,6 +139,17 @@ public class MainActivity extends AppCompatActivity {
         } else {
             botonhabilitado.setChecked(false);
         }
+
+
+        /**
+         * Hay que registrar el Broadcast Receiver con las 3 acciones demandadas
+         */
+        IntentFilter filtroBusqueda = new IntentFilter();
+        filtroBusqueda.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+        filtroBusqueda.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        filtroBusqueda.addAction(BluetoothDevice.ACTION_FOUND);
+
+        registerReceiver(miBroadcastReceiver, filtroBusqueda);
 
         /**
          * Implementar el metodo OnCheckedListener para mostrar que hacer en cada caso
@@ -148,20 +196,34 @@ public class MainActivity extends AppCompatActivity {
                     });
         });
 
+
         /**
          * El botonBusqueda se encarga de buscar los dispositivos disponibles a los que se puede emparejar
          * Saldrán los dispositivos en una lista nueva
          */
-
         botonBuscarDispositivos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (adaptadorBluetooth.isDiscovering()) {
-                    Log.d(TAG, "Ya estça buscando dispositivos");
+                    Log.d(TAG, "Ya está buscando dispositivos");
                 } else if (adaptadorBluetooth.startDiscovery()) {
                     Log.d(TAG, "Buscando dispositivos");
                 } else {
                     Log.d(TAG, "Error al buscar dispositivos");
+                }
+                if (adaptadorBluetooth.cancelDiscovery()) {
+                    Log.d(TAG, "Deteniendo la busqueda de dispositivos");
+                } else {
+                    Log.d(TAG, "Error al detener la busqueda de dispositivos");
+                }
+            }
+
+
+            public void onDetenerBusquedaClick(View view) {
+                if (adaptadorBluetooth.cancelDiscovery()) {
+                    Log.d(TAG, "Deteniendo la busqueda de dispositivos");
+                } else {
+                    Log.d(TAG, "Error al detener la busqueda de dispositivos");
                 }
             }
         });
@@ -213,7 +275,6 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "Mostrando dispositivos emparejados", Toast.LENGTH_SHORT).show();
         ArrayAdapter adaptador = new ArrayAdapter(this, android.R.layout.simple_list_item_1, lista);
         listaEmparejados.setAdapter(adaptador);
-        listaDDispobibles.setAdapter(adaptador);
 
 
         //Cuando pulsas cualquier elemento de la lista de dispositivos posibles, obtiene su nombre
